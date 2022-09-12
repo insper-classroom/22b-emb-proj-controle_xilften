@@ -6,24 +6,24 @@ Desenvolvendo um controle remoto.
 
 ### Integrantes
 
-- Nome1
-- Nome2
+- Pedro Osborn Mahfuz
+- Pedro Von Dannecker
 
 ### Ideia
 
-<!--  Descreva aqui em poucas palavras qual a ideia do seu controle. Se ele vai ser de jogo ou de aplicação -->
+Nosso dispositivo será de aplicação, ele irá controlar certas funções no canal de streaming Netflix, iremos implementar botões com as seguintes funções: controlar o volume (se segurar abaixa se clicar aumenta), avançar 10 segundos na reprodução, voltar 10 segundos na reprodução, joystick com função de selecionar e além disso funciona como analógico que controla o mouse. 
 
 ### Nome
 
-<!-- De um nome ao seu controle! -->
+Pedro
 
 ### Usuários 
 
-<!-- Descreva aqui quem seriam os possíveis usuários deste controle. -->
+Qulquer usuário do canal de streaming Netflix, que deseja utilizar o computador para assistir o conteúdo disponível.
 
 ### Software/Jogo 
 
-<!-- Qual software que seu controle vai controlar? -->
+Netflix
 
 ### Jornada do usuários (3 pts)
 
