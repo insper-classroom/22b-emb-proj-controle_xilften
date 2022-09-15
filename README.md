@@ -41,7 +41,7 @@ Quais são os comandos/ operacões possíveis do seu controle?
 Quais os feedbacks que seu controle vai fornecer ao usuário?
 -->
 Movimentação do mouse e função selecionar:Joystick
- -- Através do Joystick, que possui dois sensores analógicos, o usuário ao moviment-lo poderá realizar as mesmas funções de um mouse, ou seja, movimentação em plano xy e opção de selecionar, que será indicada através de um LED. 
+ -- Através do Joystick, que possui dois sensores analógicos, o usuário ao moviment-lo poderá realizar as mesmas funções de um mouse, ou seja, movimentação em plano xy e opção de selecionar, que será indicada através de um LED.\n
 Adiantar episodio: Push button amarelo
 -- O usuário pode utilizar da função do streaming de avançar 10 segundos do filme/episodio ao clicar o botão amarelo.
 Retornar episodeo:Push button verde
