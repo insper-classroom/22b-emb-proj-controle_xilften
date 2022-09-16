@@ -90,6 +90,7 @@ Liga/Desliga: botão com led
 
 ### Design (2 pts)
 
+![WhatsApp Image 2022-09-16 at 4 18 50 PM](https://user-images.githubusercontent.com/62957998/190798022-d4c5e137-e7fd-43bc-b35a-e6cc1da1a127.jpeg)
 <!--
 Faca um esboco de como seria esse controle (vai ter uma etapa que terão que detalhar melhor isso).
 -->
