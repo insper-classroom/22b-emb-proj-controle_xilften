@@ -531,7 +531,7 @@ void task_bluetooth(void) {
 	
 		if( xQueueReceive( xQueueButDig, &dig, ( TickType_t ) 500 )){
 			
-			if (dig == 5) {
+			if (dig == 5 && ligado==0) {
 				while(1) {
 					button1=dig;
 					printf("-----dig: %x\n",dig);
@@ -563,27 +563,33 @@ void task_bluetooth(void) {
 						
 						usart_read(USART_COM, &recebido);
 						printf("Recebido: %x \n", recebido);
-						if(recebido == 0x05) break;
+						if(recebido == 0x05){
+							ligado=1;
+							break;
+						} 
 					}
 				}
 			}
 			
-			button1=dig;
-			printf("-----dig: %s\n",dig);
-			// envia status botão
-			while(!usart_is_tx_ready(USART_COM)) {
-				vTaskDelay(10 / portTICK_PERIOD_MS);
+			else if(ligado==1){
+				button1=dig;
+				printf("-----dig: %s\n",dig);
+				// envia status botão
+				while(!usart_is_tx_ready(USART_COM)) {
+					vTaskDelay(10 / portTICK_PERIOD_MS);
+				}
+				usart_write(USART_COM, button1);
+							
+				// envia fim de pacote
+				while(!usart_is_tx_ready(USART_COM)) {
+					vTaskDelay(10 / portTICK_PERIOD_MS);
+				}
+				usart_write(USART_COM, eof);
+							
+				// dorme por 500 ms
+				vTaskDelay(500 / portTICK_PERIOD_MS);
 			}
-			usart_write(USART_COM, button1);
 			
-			// envia fim de pacote
-			while(!usart_is_tx_ready(USART_COM)) {
-				vTaskDelay(10 / portTICK_PERIOD_MS);
-			}
-			usart_write(USART_COM, eof);
-			
-			// dorme por 500 ms
-			vTaskDelay(500 / portTICK_PERIOD_MS);
 			
 			
 			
