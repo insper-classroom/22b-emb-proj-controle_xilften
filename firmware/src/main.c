@@ -105,6 +105,7 @@ extern void xPortSysTickHandler(void);
 
 /************************************************************************/
 /* constants                                                            */
+volatile char ligado=0;
 /************************************************************************/
 
 /************************************************************************/
@@ -156,15 +157,16 @@ static void AFEC_pot_callback(void) {
 }
 
 void but1_callback(void) {
+	printf("botao1\n");
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	char dig ='\x01';
-	xQueueSendFromISR(xQueueButDig, &dig, xHigherPriorityTaskWoken);	
+	xQueueSendFromISR(xQueueButDig, &dig, xHigherPriorityTaskWoken);
 	
 	
 }
 
 void but2_callback(void) {
-	printf("botao2");
+	printf("botao2\n");
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	char dig ='\x02';
 	xQueueSendFromISR(xQueueButDig, &dig, xHigherPriorityTaskWoken);
@@ -173,14 +175,23 @@ void but2_callback(void) {
 }
 
 void but3_callback(void) {
+	printf("botao3\n");
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	char dig ='\x03';
+	char dig ='\x05';
 	xQueueSendFromISR(xQueueButDig, &dig, xHigherPriorityTaskWoken);
 	
 	
 }
 
 void but_callback(void){
+	
+}
+
+void but_ligar_callback(void){
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+	char dig ='\x05';
+	xQueueSendFromISR(xQueueButDig, &dig, xHigherPriorityTaskWoken);
+	
 	
 }
 
@@ -191,48 +202,48 @@ void but_callback(void){
 /************************************************************************/
 
 static void config_AFEC_pot(Afec *afec, uint32_t afec_id, uint32_t afec_channel,
-                            afec_callback_t callback) {
-  /*************************************
-   * Ativa e configura AFEC
-   *************************************/
-  /* Ativa AFEC - 0 */
-  afec_enable(afec);
+afec_callback_t callback) {
+	/*************************************
+	* Ativa e configura AFEC
+	*************************************/
+	/* Ativa AFEC - 0 */
+	afec_enable(afec);
 
-  /* struct de configuracao do AFEC */
-  struct afec_config afec_cfg;
+	/* struct de configuracao do AFEC */
+	struct afec_config afec_cfg;
 
-  /* Carrega parametros padrao */
-  afec_get_config_defaults(&afec_cfg);
+	/* Carrega parametros padrao */
+	afec_get_config_defaults(&afec_cfg);
 
-  /* Configura AFEC */
-  afec_init(afec, &afec_cfg);
+	/* Configura AFEC */
+	afec_init(afec, &afec_cfg);
 
-  /* Configura trigger por software */
-  afec_set_trigger(afec, AFEC_TRIG_SW);
+	/* Configura trigger por software */
+	afec_set_trigger(afec, AFEC_TRIG_SW);
 
-  /*** Configuracao específica do canal AFEC ***/
-  struct afec_ch_config afec_ch_cfg;
-  afec_ch_get_config_defaults(&afec_ch_cfg);
-  afec_ch_cfg.gain = AFEC_GAINVALUE_0;
-  afec_ch_set_config(afec, afec_channel, &afec_ch_cfg);
+	/*** Configuracao específica do canal AFEC ***/
+	struct afec_ch_config afec_ch_cfg;
+	afec_ch_get_config_defaults(&afec_ch_cfg);
+	afec_ch_cfg.gain = AFEC_GAINVALUE_0;
+	afec_ch_set_config(afec, afec_channel, &afec_ch_cfg);
 
-  /*
-  * Calibracao:
-  * Because the internal ADC offset is 0x200, it should cancel it and shift
-  down to 0.
-  */
-  afec_channel_set_analog_offset(afec, afec_channel, 0x200);
+	/*
+	* Calibracao:
+	* Because the internal ADC offset is 0x200, it should cancel it and shift
+	down to 0.
+	*/
+	afec_channel_set_analog_offset(afec, afec_channel, 0x200);
 
-  /***  Configura sensor de temperatura ***/
-  struct afec_temp_sensor_config afec_temp_sensor_cfg;
+	/***  Configura sensor de temperatura ***/
+	struct afec_temp_sensor_config afec_temp_sensor_cfg;
 
-  afec_temp_sensor_get_config_defaults(&afec_temp_sensor_cfg);
-  afec_temp_sensor_set_config(afec, &afec_temp_sensor_cfg);
+	afec_temp_sensor_get_config_defaults(&afec_temp_sensor_cfg);
+	afec_temp_sensor_set_config(afec, &afec_temp_sensor_cfg);
 
-  /* configura IRQ */
-  afec_set_callback(afec, afec_channel, callback, 1);
-  NVIC_SetPriority(afec_id, 4);
-  NVIC_EnableIRQ(afec_id);
+	/* configura IRQ */
+	afec_set_callback(afec, afec_channel, callback, 1);
+	NVIC_SetPriority(afec_id, 4);
+	NVIC_EnableIRQ(afec_id);
 }
 
 
@@ -412,92 +423,92 @@ void vTimerCallback(TimerHandle_t xTimer) {
 
 static void task_adc(void *pvParameters) {
 
-  // configura ADC e TC para controlar a leitura
-  config_AFEC_pot(AFEC_POT, AFEC_POT_ID, AFEC_POT_CHANNEL, AFEC_pot_callback);
+	// configura ADC e TC para controlar a leitura
+	config_AFEC_pot(AFEC_POT, AFEC_POT_ID, AFEC_POT_CHANNEL, AFEC_pot_callback);
 
-  xTimer = xTimerCreate(/* Just a text name, not used by the RTOS
-                        kernel. */
-                        "Timer",
-                        /* The timer period in ticks, must be
-                        greater than 0. */
-                        1000,
-                        /* The timers will auto-reload themselves
-                        when they expire. */
-                        pdTRUE,
-                        /* The ID is used to store a count of the
-                        number of times the timer has expired, which
-                        is initialised to 0. */
-                        (void *)0,
-                        /* Timer callback */
-                        vTimerCallback);
-  xTimerStart(xTimer, 0);
+	xTimer = xTimerCreate(/* Just a text name, not used by the RTOS
+	kernel. */
+	"Timer",
+	/* The timer period in ticks, must be
+	greater than 0. */
+	1000,
+	/* The timers will auto-reload themselves
+	when they expire. */
+	pdTRUE,
+	/* The ID is used to store a count of the
+	number of times the timer has expired, which
+	is initialised to 0. */
+	(void *)0,
+	/* Timer callback */
+	vTimerCallback);
+	xTimerStart(xTimer, 0);
 
-  // variável para recever dados da fila
-  adcData adc;
-  int media=0; 
+	// variável para recever dados da fila
+	adcData adc;
+	int media=0;
 
-  while (1) {
-    if (xQueueReceive(xQueueADC, &(adc), 50000)) {
-		if(adc.value-media>300){
-			printf("adc: %d \n", adc.value);
-			printf("media: %d \n", media);
-			printf("sub0: %d \n", adc.value-media);
-			
+	while (1) {
+		if (xQueueReceive(xQueueADC, &(adc), 50000)) {
+			if(adc.value-media>300){
+				// 			printf("adc: %d \n", adc.value);
+				// 			printf("media: %d \n", media);
+				// 			printf("sub0: %d \n", adc.value-media);
+				//
 
-			char dig ='\x04' ;
-			xQueueSend(xQueueButDig, &dig, 0);
-			media=adc.value;
+				char dig ='\x04' ;
+				xQueueSend(xQueueButDig, &dig, 0);
+				media=adc.value;
+			}
+			else if(adc.value-media<-300){
+				//printf("sub1: %u \n", adc.value-media);
+				printf("adc: %d \n", adc.value);
+				printf("media: %d \n", media);
+				printf("sub1: %d \n", adc.value-media);
+
+				char dig ='\x05' ;
+				xQueueSend(xQueueButDig, &dig, 0);
+				media=adc.value;
+				
+			}
+			else{
+				//printf("entrou else");
+			}
+			//printf("ADC: %d \n", adc);
+			} else {
+			printf("Nao chegou um novo dado em 1 segundo,taskadc");
 		}
-		else if(adc.value-media<-300){
-			//printf("sub1: %u \n", adc.value-media);
-			printf("adc: %d \n", adc.value);
-			printf("media: %d \n", media);
-			printf("sub1: %d \n", adc.value-media);
-
-			char dig ='\x05' ;
-			xQueueSend(xQueueButDig, &dig, 0);
-			media=adc.value;
-			
-		}
-		else{
-			printf("entrou else");
-		}
-		//printf("ADC: %d \n", adc);
-    } else {
-      printf("Nao chegou um novo dado em 1 segundo,taskadc");
-    }
-  }
+	}
 }
 
 static void task_proc(void *pvParameters) {
 
-  // configura ADC e TC para controlar a leitura
-  
+	// configura ADC e TC para controlar a leitura
+	
 
-  // variável para recever dados da fila
-  adcData adc;
-  int vec[10];
-  int media=0;
-  for(int c=0;c<10;c++){
-	  vec[c]=0;
-  }
+	// variável para recever dados da fila
+	adcData adc;
+	int vec[10];
+	int media=0;
+	for(int c=0;c<10;c++){
+		vec[c]=0;
+	}
 
-  while (1) {
-    if (xQueueReceive(xQueuePROC, &(adc), 5000)) {
-		
-		
-		for(int c=0;c<9;c++){
-			vec[c]=vec[c+1];
+	while (1) {
+		if (xQueueReceive(xQueuePROC, &(adc), 5000)) {
+			
+			
+			for(int c=0;c<9;c++){
+				vec[c]=vec[c+1];
+			}
+			media=media-vec[0]/10 +adc.value/10;
+			vec[9]=adc.value;
+			
+			BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+			xQueueSend(xQueueADC, &media, &xHigherPriorityTaskWoken);
+			} else {
+			printf("Nao chegou um novo dado em 1 segundo");
 		}
-		media=media-vec[0]/10 +adc.value/10;
-		vec[9]=adc.value;
-		
-		BaseType_t xHigherPriorityTaskWoken = pdTRUE;
-		xQueueSend(xQueueADC, &media, &xHigherPriorityTaskWoken);
-    } else {
-      printf("Nao chegou um novo dado em 1 segundo");
-    }
-  }
+	}
 }
 
 
@@ -517,26 +528,48 @@ void task_bluetooth(void) {
 
 	// Task não deve retornar.
 	while(1) {
-		if(pio_get(BUT1_PIO, PIO_INPUT, BUT1_IDX_MASK) == 0) {
-			//printf("funcionando 0 \n");
-		}
-		if(pio_get(BUT1_PIO, PIO_INPUT, BUT1_IDX_MASK) == 1) {
-			//printf("funcionando 1 \n");
-		}
-		
-		
-		// atualiza valor do botão
-// 		if(pio_get(BUT1_PIO, PIO_INPUT, BUT1_IDX_MASK) == 0) {
-// 			button1 = '3';
-// 		} else {
-// 			button1 = '0';
-// 		}
-// 		
+	
 		if( xQueueReceive( xQueueButDig, &dig, ( TickType_t ) 500 )){
+			
+			if (dig == 5) {
+				while(1) {
+					button1=dig;
+					printf("-----dig: %x\n",dig);
+					// envia status botão
+					while(!usart_is_tx_ready(USART_COM)) {
+						vTaskDelay(10 / portTICK_PERIOD_MS);
+					}
+					usart_write(USART_COM, button1);
+					
+					// envia fim de pacote
+					while(!usart_is_tx_ready(USART_COM)) {
+						vTaskDelay(10 / portTICK_PERIOD_MS);
+					}
+					usart_write(USART_COM, eof);
+					vTaskDelay(500 / portTICK_PERIOD_MS);
+					
+					//recebe do python
+					int timeout = 0;
+					while(!usart_is_rx_ready(USART_COM)) {
+						vTaskDelay(10 / portTICK_PERIOD_MS);
+						
+						if(timeout++>=50){
+							break;
+						}
+					}
+					
+					if (timeout < 50)  {
+						char recebido;
+						
+						usart_read(USART_COM, &recebido);
+						printf("Recebido: %x \n", recebido);
+						if(recebido == 0x05) break;
+					}
+				}
+			}
+			
 			button1=dig;
-			//
-			//printf("deu certo");
-			printf("-----dig: %c \n",dig);
+			printf("-----dig: %s\n",dig);
 			// envia status botão
 			while(!usart_is_tx_ready(USART_COM)) {
 				vTaskDelay(10 / portTICK_PERIOD_MS);
@@ -548,14 +581,83 @@ void task_bluetooth(void) {
 				vTaskDelay(10 / portTICK_PERIOD_MS);
 			}
 			usart_write(USART_COM, eof);
-
+			
 			// dorme por 500 ms
 			vTaskDelay(500 / portTICK_PERIOD_MS);
-		}
-		}
-		
+			
+			
+			
 
-		
+			
+			// 			if(button1=='\x05' && ligado==0){
+			// 				printf("estamos parados\n");
+			// 				// envia status botão
+			// 				while(!usart_is_tx_ready(USART_COM)) {
+			// 					vTaskDelay(10 / portTICK_PERIOD_MS);
+			// 				}
+			// 				usart_write(USART_COM, 'P');
+			//
+			// 				// envia fim de pacote
+			// 				while(!usart_is_tx_ready(USART_COM)) {
+			// 					vTaskDelay(10 / portTICK_PERIOD_MS);
+			// 				}
+			// 				usart_write(USART_COM, eof);
+			//
+			// 				// dorme por 500 ms
+			// 				vTaskDelay(10 / portTICK_PERIOD_MS);
+			//
+			//
+			// 				// recebe do python
+			// 				int timeout;
+			// 				while(!usart_is_rx_ready(USART_COM)) {
+			// 					vTaskDelay(10 / portTICK_PERIOD_MS);
+			//
+			// 					if(timeout++>50){
+			// 						break;
+			// 					}
+			// 				}
+			//
+			// 				char recebido;
+			//
+			// 				usart_read(USART_COM, recebido);
+			// 				printf("Recebido: %s \n", recebido);
+			//
+			// 				if(recebido=='P'){
+			// 					ligado=1;
+			// 					printf("mudou");
+			// 				}
+			//
+			// 				// dorme por 500 ms
+			//
+			//
+			//
+			//
+			//
+			// 			}
+			// 			//
+			// 			if(ligado){
+			// 				printf("ligado");
+			// 				printf("-----dig: %c \n",dig);
+			// 				// envia status botão
+			// 				while(!usart_is_tx_ready(USART_COM)) {
+			// 					vTaskDelay(10 / portTICK_PERIOD_MS);
+			// 				}
+			// 				usart_write(USART_COM, button1);
+			//
+			// 				// envia fim de pacote
+			// 				while(!usart_is_tx_ready(USART_COM)) {
+			// 					vTaskDelay(10 / portTICK_PERIOD_MS);
+			// 				}
+			// 				usart_write(USART_COM, eof);
+			//
+			// 				// dorme por 500 ms
+			// 				vTaskDelay(500 / portTICK_PERIOD_MS);
+			// 			}
+		}
+	}
+	
+
+	
 }
 
 /************************************************************************/
