@@ -34,20 +34,12 @@ class SerialControllerInterface:
         print(f'data:{data}')
         print(data)
 
-        # if data == b'P' and self.aprovado==0:
-        #     logging.info("entrou 1 if")
-        #     self.ser.write(b'P')
-        #     self.aprovado=1
-        #     print("deu certo")
-
-        # if data == b'P' and self.aprovado :
-        #     self.aprovado=0
         
         logging.debug("Received DATA: {}".format(data))
 
         confirma=b'\x05'
         if data == confirma:
-            breakpoint()
+            #breakpoint()
             logging.info("KEYUP P")
             self.ser.write(b"\x05")
             print("entrou no 5")
@@ -71,6 +63,11 @@ class SerialControllerInterface:
         if data == confirma:
             logging.info("KEYUP A")
             pyautogui.keyDown(self.mapping.button['D'])
+        confirma=b'\x06'
+        if data == confirma:
+            logging.info("KEYUP A")
+            pyautogui.keyDown(self.mapping.button['E'])
+
 
             
         

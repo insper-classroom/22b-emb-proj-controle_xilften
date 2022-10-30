@@ -40,6 +40,12 @@
 #define BUT3_IDX      21
 #define BUT3_IDX_MASK (1 << BUT3_IDX)
 
+#define BUT4_PIO      PIOA
+#define BUT4_PIO_ID   ID_PIOA
+#define BUT4_IDX      3
+#define BUT4_IDX_MASK (1 << BUT4_IDX)
+
+
 //AFEC
 #define AFEC_POT AFEC0
 #define AFEC_POT_ID ID_AFEC0
@@ -177,11 +183,14 @@ void but2_callback(void) {
 void but3_callback(void) {
 	printf("botao3\n");
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	char dig ='\x05';
+	char dig ='\x03';
 	xQueueSendFromISR(xQueueButDig, &dig, xHigherPriorityTaskWoken);
 	
 	
 }
+
+
+
 
 void but_callback(void){
 	
@@ -255,6 +264,7 @@ void io_init(void) {
 	pmc_enable_periph_clk(BUT_PIO_ID);
 	pmc_enable_periph_clk(BUT1_PIO_ID);
 	pmc_enable_periph_clk(BUT3_PIO_ID);
+	pmc_enable_periph_clk(BUT4_PIO_ID);
 
 	// Configura Pinos
 	pio_configure(LED_PIO, PIO_OUTPUT_0, LED_IDX_MASK, PIO_DEFAULT | PIO_DEBOUNCE);
@@ -262,7 +272,8 @@ void io_init(void) {
 	pio_configure(BUT_PIO, PIO_INPUT, BUT_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
 	pio_configure(BUT1_PIO, PIO_INPUT, BUT1_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
 	pio_configure(BUT2_PIO, PIO_INPUT, BUT2_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
-	pio_configure(BUT2_PIO, PIO_INPUT, BUT2_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
+	pio_configure(BUT3_PIO, PIO_INPUT, BUT3_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
+	pio_configure(BUT4_PIO, PIO_INPUT, BUT4_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
 	
 	pio_set_debounce_filter(BUT1_PIO,BUT1_IDX_MASK, 100);
 	//pio_handler_set(BUT1_PIO, BUT1_PIO_ID, BUT1_IDX_MASK, PIO_IT_FALL_EDGE , but1_callback);
@@ -313,6 +324,20 @@ void io_init(void) {
 	pio_get_interrupt_status(BUT3_PIO);
 	NVIC_EnableIRQ(BUT3_PIO_ID);
 	NVIC_SetPriority(BUT3_PIO_ID, 4);
+	
+	//pino4
+	pio_set_debounce_filter(BUT4_PIO,BUT4_IDX_MASK, 100);
+	pio_handler_set(BUT4_PIO,
+	BUT4_PIO_ID,
+	BUT4_IDX_MASK,
+	PIO_IT_FALL_EDGE,
+	but_ligar_callback);
+	
+	pio_enable_interrupt(BUT4_PIO,BUT4_IDX_MASK);
+	pio_get_interrupt_status(BUT4_PIO);
+	NVIC_EnableIRQ(BUT4_PIO_ID);
+	NVIC_SetPriority(BUT4_PIO_ID, 4);
+	
 	
 	
 	
@@ -465,7 +490,7 @@ static void task_adc(void *pvParameters) {
 				printf("media: %d \n", media);
 				printf("sub1: %d \n", adc.value-media);
 
-				char dig ='\x05' ;
+				char dig ='\x06' ;
 				xQueueSend(xQueueButDig, &dig, 0);
 				media=adc.value;
 				
@@ -571,7 +596,7 @@ void task_bluetooth(void) {
 				}
 			}
 			
-			else if(ligado==1){
+			else if(ligado==1 && dig != 5 ){
 				button1=dig;
 				printf("-----dig: %s\n",dig);
 				// envia status botão
@@ -589,7 +614,10 @@ void task_bluetooth(void) {
 				// dorme por 500 ms
 				vTaskDelay(500 / portTICK_PERIOD_MS);
 			}
-			
+			else if(dig == 5 && ligado==1){
+				ligado=0;
+				
+			}
 			
 			
 			
