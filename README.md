@@ -11,7 +11,7 @@ Desenvolvendo um controle remoto.
 
 ### Ideia
 
-Nosso dispositivo será de aplicação, ele irá controlar certas funções no canal de streaming Netflix, iremos implementar botões com as seguintes funções: controlar o volume (se segurar abaixa se clicar aumenta), avançar 10 segundos na reprodução, voltar 10 segundos na reprodução, joystick com função de selecionar e além disso funciona como analógico que controla o mouse. 
+Nosso dispositivo será de aplicação, ele irá controlar certas funções no canal de streaming Netflix, iremos implementar botões com as seguintes funções: controlar o volume (analógico), avançar 10 segundos na reprodução, voltar 10 segundos na reprodução, play/pause e ligar/desligar o contorle.
 
 ### Nome
 
@@ -33,7 +33,7 @@ Cenário 1: 
   
   
 Cenário 2: 
-  Um usuário quer ter mais conforto ao assistir filmes e series em seu computador, ele gostaria de poder controlar tudo de alguma maneira sem ser pelo touchpad/mouse. Então ele utiliza o controle "Pedro" com intenção de poder deixar seu computador um pouco mais afastado e poder controlar as funções do filme/serie ao mesmo tempo, podendo adiantar e retornar o filme/serie ou aumentar e diminuir o volume diretamente a partir de botoes próximos a ele. 
+  Um usuário quer ter mais conforto ao assistir filmes e series em seu computador. Então ele utiliza o controle "Pedro" com intenção de poder deixar seu computador um pouco mais afastado e poder controlar as funções do filme/serie ao mesmo tempo, podendo adiantar e retornar o filme/serie ou aumentar e diminuir o volume diretamente a partir de botoes próximos a ele. 
 
 ### Comandos/ Feedbacks (2 pts)
 
@@ -42,24 +42,22 @@ Quais são os comandos/ operacões possíveis do seu controle?
 
 Quais os feedbacks que seu controle vai fornecer ao usuário?
 -->
-Movimentação do mouse e função selecionar:Joystick
- -- Através do Joystick, que possui dois sensores analógicos, o usuário ao moviment-lo poderá realizar as mesmas funções de um mouse, ou seja, movimentação em plano xy e opção de selecionar, que será indicada através de um LED.
  
- 
-Adiantar episodio: Push button amarelo
+Adiantar episodio: Push button vermelho
 -- O usuário pode utilizar da função do streaming de avançar 10 segundos do filme/episodio ao clicar o botão amarelo.
 
 
 Retornar episodeo:Push button verde
 -- O usuário pode utilizar da função do streaming de retornar 10 segundos do filme/episodio ao clicar o botão verde.
 
-
 Liga/Desliga: botão com led
 -- O usuário poderá liga e desligar o bluetooth do controle ao clicar este botão, que por sua vez, indica pressionamento através de um LED.
 
+Play/Pause: botão amarelo
+-- O usuário poderá dar play e pause na série/filme ao clicar este botão, que por sua vez, indica pressionamento através de um LED.
 
-Variar volume: Push button vermelho
---O usuário pode aumentar o volume ao clicar e soltar o botão vermelho ou diminuir o volume caso pressione e segure o mesmo.
+Variar volume: Potênciometro
+--O usuário pode aumentar e diminuir o volume ao deslizar o potênciometro.
 
 
 
@@ -71,21 +69,19 @@ Para cada Comando/ Feedback do seu controle, associe qual sensores/ atuadores pr
 - Avanca música: Push button amarelo
 - Volume da música: Fita de LED indicando potência do som
 -->
-Movimentação do mouse e função selecionar:Joystick e LED da placa SAME-70
 
-
-Adiantar episodio: Push button amarelo
+Adiantar episodio: Push button vermelho
 
 
 Retornar episodeo:Push button verde
 
 
-volume da musica:Push button vermelho
+volume da musica: Potênciometro
 
 
 Liga/Desliga: botão com led
 
-
+Play/Pause: Push button amarelo
 
 
 ### Design (2 pts)
