@@ -1,3 +1,4 @@
+from pydoc import apropos
 import pyautogui
 import serial
 import argparse
@@ -6,34 +7,73 @@ import logging
 
 class MyControllerMap:
     def __init__(self):
-        self.button = {'A': 'L'} # Fast forward (10 seg) pro Youtube
+        self.button = {'A': 'right', 'B': 'left', 'C': 'enter', 'D':'up', 'E':'down'} # Fast forward (10 seg) pro Youtube
 
 class SerialControllerInterface:
     # Protocolo
     # byte 1 -> Botão 1 (estado - Apertado 1 ou não 0)
     # byte 2 -> EOP - End of Packet -> valor reservado 'X'
-
+    
+    
     def __init__(self, port, baudrate):
         self.ser = serial.Serial(port, baudrate=baudrate)
         self.mapping = MyControllerMap()
         self.incoming = '0'
+        self.aprovado = 0
         pyautogui.PAUSE = 0  ## remove delay
     
     def update(self):
         ## Sync protocol
+        
+      
         while self.incoming != b'X':
             self.incoming = self.ser.read()
             logging.debug("Received INCOMING: {}".format(self.incoming))
+        
+        data = self.ser.read()      
+        print(f'data:{data}')
+        print(data)
 
-        data = self.ser.read()
+        
         logging.debug("Received DATA: {}".format(data))
 
-        if data == b'1':
+        confirma=b'\x05'
+        if data == confirma:
+            #breakpoint()
+            logging.info("KEYUP P")
+            self.ser.write(b"\x05")
+            print("entrou no 5")
+
+        confirma=b'\x01'
+        if data == confirma:
             logging.info("KEYDOWN A")
             pyautogui.keyDown(self.mapping.button['A'])
-        elif data == b'0':
+
+        confirma=b'\x02'
+        if data == confirma:
             logging.info("KEYUP A")
-            pyautogui.keyUp(self.mapping.button['A'])
+            pyautogui.keyDown(self.mapping.button['B'])
+
+        confirma=b'\x03'
+        if data == confirma:
+            logging.info("KEYDOWN A")
+            pyautogui.keyDown(self.mapping.button['C'])
+
+        confirma=b'\x04'
+        if data == confirma:
+            logging.info("KEYUP A")
+            pyautogui.keyDown(self.mapping.button['D'])
+        confirma=b'\x06'
+        if data == confirma:
+            logging.info("KEYUP A")
+            pyautogui.keyDown(self.mapping.button['E'])
+
+
+            
+        
+
+
+
 
         self.incoming = self.ser.read()
 
@@ -66,6 +106,6 @@ if __name__ == '__main__':
         controller = DummyControllerInterface()
     else:
         controller = SerialControllerInterface(port=args.serial_port, baudrate=args.baudrate)
-
+    
     while True:
         controller.update()
